@@ -6,20 +6,20 @@ header("Content-Type: application/json");
 
 include __DIR__ . '/config/conexion.php';
 
-$id = $_GET['id'] ?? null;
+$id_persona = $_GET['id_persona'] ?? null;
 
-if ($id) {
+if ($id_persona) {
     try {
-        $sql = "SELECT * FROM propietarios WHERE id = :id LIMIT 1";
+        $sql = "SELECT * FROM personas WHERE id_persona = :id_persona LIMIT 1";
         $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':id_persona', $id_persona, PDO::PARAM_INT);
         $stmt->execute();
-        $propietario = $stmt->fetch(PDO::FETCH_ASSOC);
+        $persona = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($propietario) {
-            echo json_encode($propietario);
+        if ($persona) {
+            echo json_encode($persona);
         } else {
-            echo json_encode(["error" => "Propietario no encontrado"]);
+            echo json_encode(["error" => "Persona no encontrada"]);
         }
     } catch (PDOException $e) {
         echo json_encode(["error" => "Error en la base de datos: " . $e->getMessage()]);

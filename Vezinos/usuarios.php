@@ -7,6 +7,7 @@ header("Content-Type: application/json");
 include __DIR__ . '/config/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id_usuario       = $_POST['id_usuario'] ?? null; // campo oculto
     $nombre_usuario   = $_POST['nombre_usuario'] ?? '';
     $nombre_completo  = $_POST['nombre_completo'] ?? '';
     $numero_documento = $_POST['numero_documento'] ?? '';
@@ -48,9 +49,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Insertar si no hay duplicados
         $sql = "INSERT INTO usuarios 
-                (nombre_usuario, nombre_completo, numero_documento, correo, rol, codigo_activacion, conjunto, contrasena, confirmacion) 
+                (nombre_usuario, nombre_completo, numero_documento, correo, rol, codigo_activacion, 
+                conjunto, contrasena, confirmacion) 
                 VALUES 
-                (:nombre_usuario, :nombre_completo, :numero_documento, :correo, :rol, :codigo_activacion, :conjunto, :contrasena, :confirmacion)";
+                (:nombre_usuario, :nombre_completo, :numero_documento, :correo, :rol, :codigo_activacion, 
+                :conjunto, :contrasena, :confirmacion)";
         $stmt = $conn->prepare($sql);
 
         $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);

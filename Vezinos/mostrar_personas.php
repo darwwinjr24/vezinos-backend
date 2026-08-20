@@ -7,14 +7,14 @@ header("Content-Type: application/json");
 include __DIR__ . '/config/conexion.php';
 
 try {
-    $sql = "SELECT id, nombre, numero_cedula, celular, correo, 
-                   CONCAT(torre_manzana, ' ', apartamento) AS casa,
+    $sql = "SELECT id_persona, nombre_completo, numero_cedula, celular, correo, 
+                   CONCAT(torre_manzana, ' ', apartamento) AS casa, rol,
                    residente 
-            FROM propietarios";
+            FROM personas";
     $stmt = $conn->query($sql);
-    $propietarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($propietarios);
+    echo json_encode($personas);
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }

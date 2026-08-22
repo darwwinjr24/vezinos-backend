@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     WHERE id_persona = ?";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$nombre_completo, $numero_cedula, $correo, $celular, $torre_manzana, $apartamento, $rol, $residente, $id_persona]);
-            echo json_encode(["status" => "success", "message" => "rol actualizado correctamente"]);
+            echo json_encode(["status" => "success", "message" => "Datos actualizados correctamente"]);
         } else {
             // Modo creación → INSERT
             $sql = "INSERT INTO personas 

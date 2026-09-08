@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include __DIR__ . '/config/conexion.php';
+include __DIR__ . '/../config/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_persona             = $_POST['id_persona'] ?? null; // campo oculto
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$nombre_completo, $numero_cedula, $correo, $celular, $torre_manzana, $apartamento, $rol, $residente]);
-            echo json_encode(["status" => "success", "message" => "rol registrado correctamente"]);
+            echo json_encode(["status" => "success", "message" => "Persona registrada correctamente"]);
         }
     } catch (PDOException $e) {
         echo json_encode(["status" => "error", "message" => "Error en la base de datos: " . $e->getMessage()]);

@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include __DIR__ . '/config/conexion.php';
+include __DIR__ . '/../config/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rol        = $_POST['rol'] ?? '';

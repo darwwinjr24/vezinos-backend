@@ -13,10 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $numero_documento = $_POST['numero_documento'] ?? '';
     $correo           = $_POST['correo'] ?? '';
     $rol              = $_POST['rol'] ?? '';
+    $estado           = $_POST['estado'] ?? '';
     $codigo_activacion= $_POST['codigo_activacion'] ?? '';
-    $conjunto         = $_POST['conjunto'] ?? '';
     $contrasena       = $_POST['contrasena'] ?? '';
     $confirmacion     = $_POST['confirmacion'] ?? '';
+    $id_conjunto      = $_POST['id_conjunto'] ?? '';
 
     try {
         // Validar duplicados uno por uno
@@ -46,14 +47,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode(["status" => "error", "message" => "El número de documento ya está registrado"]);
             exit;
         }
+        //Estado del rol
+        $estado = ($rol === 'administrador') ? 'activo' : 'pendiente';
 
         // Insertar si no hay duplicados
         $sql = "INSERT INTO usuarios 
-                (nombre_usuario, nombre_completo, numero_documento, correo, rol, codigo_activacion, 
-                conjunto, contrasena, confirmacion) 
+                (nombre_usuario, nombre_completo, numero_documento, correo, rol, estado, codigo_activacion, 
+                contrasena, confirmacion, id_conjunto) 
                 VALUES 
-                (:nombre_usuario, :nombre_completo, :numero_documento, :correo, :rol, :codigo_activacion, 
-                :conjunto, :contrasena, :confirmacion)";
+                (:nombre_usuario, :nombre_completo, :numero_documento, :correo, :rol, :estado, :codigo_activacion, 
+                :contrasena, :confirmacion, :id_conjunto)";
         $stmt = $conn->prepare($sql);
 
         $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
@@ -61,10 +64,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':numero_documento', $numero_documento, PDO::PARAM_STR);
         $stmt->bindParam(':correo', $correo, PDO::PARAM_STR);
         $stmt->bindParam(':rol', $rol, PDO::PARAM_STR);
+        $stmt->bindParam(':estado', $estado, PDO::PARAM_STR);
         $stmt->bindParam(':codigo_activacion', $codigo_activacion, PDO::PARAM_STR);
-        $stmt->bindParam(':conjunto', $conjunto, PDO::PARAM_STR);
         $stmt->bindParam(':contrasena', $contrasena, PDO::PARAM_STR);
         $stmt->bindParam(':confirmacion', $confirmacion, PDO::PARAM_STR);
+        $stmt->bindParam(':id_conjunto', $id_conjunto, PDO::PARAM_INT);
+
 
         if ($stmt->execute()) {
             echo json_encode(["status" => "success", "message" => "Registro guardado correctamente"]);

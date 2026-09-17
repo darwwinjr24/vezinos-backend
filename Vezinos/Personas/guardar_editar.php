@@ -9,20 +9,21 @@ include __DIR__ . '/../config/conexion.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_persona     = !empty($_POST['id_persona']) ? $_POST['id_persona'] : null;
     $raw_id_usuario = trim($_POST['id_usuario'] ?? '');
+    
+    // Nueva variable para asociar la casa (id_vivienda)
+    $id_vivienda    = !empty($_POST['id_vivienda']) ? (int)$_POST['id_vivienda'] : null;
 
     // Evaluar si id_usuario es válido (admite NULL)
     $id_usuario = (!empty($raw_id_usuario) && strtolower($raw_id_usuario) !== 'null') ? (int)$raw_id_usuario : null;
 
-    // CAMPOS NO NULOS: Aseguramos que siempre tengan un valor (cadena vacía '' o valor enviado)
+    // CAMPOS NO NULOS
     $celular   = isset($_POST['celular']) ? trim($_POST['celular']) : '';
-    $perfil    = isset($_POST['perfil']) ? trim($_POST['perfil']) : '';
-    $residente = isset($_POST['residente']) ? trim($_POST['residente']) : 'No';
-    $edad      = !empty($_POST['edad']) ? (int)$_POST['edad'] : 0; // Si es un int NOT NULL en BD, asigna 0 por defecto
+    $perfil    = isset($_POST['perfil']) ? trim($_POST['perfil']) : 'Residente';
+    $residente = isset($_POST['residente']) ? trim($_POST['residente']) : 'Si';
+    $edad      = !empty($_POST['edad']) ? (int)$_POST['edad'] : 0;
     $genero    = isset($_POST['genero']) ? trim($_POST['genero']) : '';
 
-    // NORMALIZACIÓN PARA DATOS PERSONALES (Admiten NULL en BD):
-    // Si ES usuario -> Se dejan en NULL (viven en la tabla usuarios)
-    // Si NO es usuario -> Se guardan los textos digitados
+    // NORMALIZACIÓN DE DATOS PERSONALES
     if ($id_usuario !== null) {
         $nombre_persona = null;
         $numero_cedula  = null;
@@ -34,11 +35,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
+        // Lógica de autodetección (Si no viene id_persona pero el nombre ya existe, obtenemos su ID para actualizarlo)
+        if (!$id_persona && $nombre_persona !== null) {
+            $stmtSearch = $conn->prepare("SELECT id_persona FROM personas WHERE LOWER(nombre_persona) = LOWER(?)");
+            $stmtSearch->execute([$nombre_persona]);
+            $existente = $stmtSearch->fetch(PDO::FETCH_ASSOC);
+            if ($existente) {
+                $id_persona = $existente['id_persona'];
+            }
+        }
+
         if ($id_persona) {
-            // Modo edición → UPDATE
+            // Modo edición → UPDATE (Incluye id_vivienda)
             $sql = "UPDATE personas 
                     SET nombre_persona = ?, numero_cedula = ?, correo_persona = ?, celular = ?, 
-                        perfil = ?, residente = ?, edad = ?, genero = ?, id_usuario = ?
+                        perfil = ?, residente = ?, edad = ?, genero = ?, id_usuario = ?, id_vivienda = ?
                     WHERE id_persona = ?";
             $stmt = $conn->prepare($sql);
 
@@ -51,16 +62,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $residente, 
                 $edad, 
                 $genero, 
-                $id_usuario, 
+                $id_usuario,
+                $id_vivienda, 
                 $id_persona
             ]);
 
-            echo json_encode(["status" => "success", "message" => "Datos actualizados correctamente"]);
+            echo json_encode(["status" => "success", "message" => "Datos de residente actualizados correctamente"]);
         } else {
-            // Modo creación → INSERT
+            // Modo creación → INSERT (Incluye id_vivienda)
             $sql = "INSERT INTO personas 
-                    (nombre_persona, numero_cedula, correo_persona, celular, perfil, residente, edad, genero, id_usuario) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    (nombre_persona, numero_cedula, correo_persona, celular, perfil, residente, edad, genero, id_usuario, id_vivienda) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
 
             $stmt->execute([
@@ -72,10 +84,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $residente, 
                 $edad, 
                 $genero, 
-                $id_usuario
+                $id_usuario,
+                $id_vivienda
             ]);
 
-            echo json_encode(["status" => "success", "message" => "Persona registrada correctamente"]);
+            echo json_encode(["status" => "success", "message" => "Residente registrado y asociado correctamente"]);
         }
     } catch (PDOException $e) {
         echo json_encode(["status" => "error", "message" => "Error en la base de datos: " . $e->getMessage()]);

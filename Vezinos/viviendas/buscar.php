@@ -7,13 +7,13 @@ header("Content-Type: application/json");
 include __DIR__ . '/../config/conexion.php';
 
 try {
-    $sql = "SELECT id_conjunto, nombre_conjunto FROM conjuntos";
+    $sql = "SELECT id_vivienda, numero_casa FROM viviendas";
     $stmt = $conn->query($sql);
 
     // Obtener todos los resultados como array asociativo
-    $conjuntos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $viviendas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($conjuntos);
+    echo json_encode($viviendas);
 } catch(PDOException $e) {
     echo json_encode(["error" => $e->getMessage()]);
 }
